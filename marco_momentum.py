@@ -66,6 +66,9 @@ data = yf.download(symbols, start=start_date, end=end_date)['Adj Close']
 # Fill missing values
 data = data.fillna(method='ffill')
 
+# Convert data index to naive datetime to avoid timezone issues
+data.index = data.index.tz_localize(None)
+
 # Calculate momentum for each asset
 def calculate_momentum(prices):
     if len(prices) < 252:
@@ -143,7 +146,7 @@ if st.button("Run Backtest"):
     st.write(last_momentum)
 
     # Calculate the overall MTD % of the PnL of the portfolio
-    current_month_start = pd.to_datetime(f"{end_date.year}-{end_date.month:02d}-01")
+    current_month_start = pd.to_datetime(f"{end_date.year}-{end_date.month:02d}-01").tz_localize(None)
     portfolio_mtd_return = (portfolio_values[-1] / portfolio_values[-2] - 1) * 100 if len(portfolio_values) > 1 else 0
     st.write(f"Overall Portfolio MTD Return: {portfolio_mtd_return:.2f}%")
 
